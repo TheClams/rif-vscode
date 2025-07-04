@@ -1,0 +1,35 @@
+{
+  "name": "rifgen-syntax",
+  "displayName": "RifGen Syntax",
+  "description": "Syntax highlighting for RIF files (.rif)",
+  "version": "0.1.0",
+  "publisher": "Clamsax",
+  "engines": {
+    "vscode": ">=1.50.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "rif",
+        "aliases": ["RIF", "rif"],
+        "extensions": [".rif"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "rif",
+        "scopeName": "source.rif",
+        "path": "./syntaxes/rif.tmLanguage.json"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TheClams/rif-vscode"
+  },
+  "license": "MIT"
+} 
