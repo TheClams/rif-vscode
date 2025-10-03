@@ -2,7 +2,7 @@
   "name": "rifgen-syntax",
   "displayName": "RifGen Syntax",
   "description": "Syntax highlighting for RIF files (.rif)",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "Clamsax",
   "engines": {
     "vscode": ">=1.50.0"
@@ -10,6 +10,11 @@
   "categories": [
     "Programming Languages"
   ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
   "contributes": {
     "languages": [
       {
