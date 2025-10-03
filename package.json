@@ -2,7 +2,7 @@
   "name": "rifgen-syntax",
   "displayName": "RifGen Syntax",
   "description": "Syntax highlighting for RIF files (.rif)",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "Clamsax",
   "engines": {
     "vscode": ">=1.50.0"
@@ -32,9 +32,11 @@
       }
     ]
   },
+  "homepage": "https://github.com/TheClams/rif-vscode",
   "repository": {
     "type": "git",
     "url": "https://github.com/TheClams/rif-vscode"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "privacy": "https://github.com/TheClams/rif-vscode/blob/main/PRIVACY.md"
 } 
