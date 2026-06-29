@@ -258,7 +258,7 @@
       "name": "meta.limit.rif",
       "patterns": [
         {
-          "match": "\\b(enum)\\b",
+          "match": "\\b(enum|external)\\b",
           "name": "constant.language.rif"
         },
         {"include": "#numerics"}
@@ -296,11 +296,12 @@
       }
     },
     "enum": {
-      "begin": "^(\\s*)(enum)\\s*(:)",
+      "begin": "^(\\s*)(enum)\\s*(:)\\s*(type)?",
       "end": "(?=^)",
       "beginCaptures": {
         "2": {"name": "keyword.language.rif"},
-        "3": {"name": "keyword.operator.rif"}
+        "3": {"name": "keyword.operator.rif"},
+        "4": {"name": "constant.language.rif"}
       },
       "name": "meta.enum.rif",
       "patterns": [
@@ -562,8 +563,16 @@
           }
         },
         {
-          "match": "(@)",
+          "match": "(@\\+=|@)",
           "name": "keyword.operator.address.rif"
+        },
+        {
+          "match": "^\\s*(optional)\\s+(:)\\s*(enable)?",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"},
+            "3": {"name": "constant.language.rif"}
+          }
         },
         {"include": "#group"},
         {"include": "#suffix"},
@@ -683,7 +692,7 @@
           ]
         },
         {
-          "match": "^\\s+((?:hw|sw)ClkEn)\\s*(:)\\s*.*$",
+          "match": "^\\s+((?:hw|sw)(?:ClkEn|Clear))\\s*(:)\\s*.*$",
           "captures": {
             "1": {"name": "keyword.language.rif"},
             "2": {"name": "keyword.operator.rif"}
