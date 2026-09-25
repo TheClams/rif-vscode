@@ -29,6 +29,7 @@
         },
         {"include": "#clk-reset"},
         {"include": "#parameters"},
+        {"include": "#generics"},
         {"include": "#info"},
         {"include": "#numerics"},
         {"include": "#interface"},
@@ -169,7 +170,8 @@
       "beginCaptures": {
         "2": {"name": "keyword.operator.rif"},
         "3": {"name": "entity.name.variable.rif"},
-        "4": {"name": "constant.numeric.rif"}
+        "4": {"name": "keyword.operator.rif"},
+        "5": {"name": "constant.numeric.rif"}
       },
       "name": "meta.block.field.rif",
       "patterns": [
@@ -341,20 +343,21 @@
     },
     "parameters": {
       "begin": "^(\\s*)(parameters)\\s*(:)?",
-      "end": "^(?!\\1\\s+)(?=\\S)",
+      "end": "^(?=\\s+(-\\s*\\w+\\s*:|\\w))",
       "beginCaptures": {
         "2": {"name": "keyword.language.rif"},
         "3": {"name": "keyword.operator.rif"}
       },
-      "name": "meta.block.info.rif",
+      "name": "meta.block.parameter.rif",
       "patterns": [
         {"include": "#comments"},
-        {"include": "#parameter-assignment"}
+        {"include": "#parameter-item"}
       ]
     },
-    "parameter-assignment": {
+    "parameter-item": {
       "begin": "^(?i)(\\s*)(-)\\s*(?:\\w+\\.)*(\\w+)\\b\\s*(=)\\s*",
       "end": "$",
+      "name": "meta.block.parameter-item.rif",
       "beginCaptures": {
         "2": {"name": "keyword.operator.rif"},
         "3": {"name": "variable.other.rif"},
@@ -373,6 +376,38 @@
         }
       ]
     },
+    "generics": {
+      "begin": "^(\\s*)(generics)\\s*(:)?",
+      "end": "^(?=\\s+(-\\s*\\w+\\s*:|\\w))",
+      "name": "meta.block.generics.rif",
+      "beginCaptures": {
+        "2": {"name": "keyword.language.rif"},
+        "3": {"name": "keyword.operator.rif"}
+      },
+      "patterns": [
+        {"include": "#comments"},
+        {"include": "#generic-item"}
+      ]
+    },
+    "generic-item": {
+      "begin": "^(?i)(\\s*)(-)\\s*(\\w+)\\b\\s*(=)\\s*",
+      "end": "$",
+      "beginCaptures": {
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "variable.other.rif"},
+        "4": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.block.generic-item.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {"include": "#strings"},
+        {"include": "#numerics"},
+        {
+          "match": ":",
+          "name": "keyword.operator.rif"
+        }
+      ]
+    },    
     "interrupt": {
       "patterns": [
         {
@@ -426,6 +461,18 @@
         }
       ]
     },
+    "indexes": {
+      "begin" : "\\[",
+      "end" : "\\]",
+      "beginCaptures": {"0": {"name": "punctuation.brackets.square.rif"}},
+      "endCaptures": {"0": {"name": "punctuation.brackets.square.rif"}},
+      "name": "meta.block.index.rif",
+      "patterns": [
+        {"include": "#numerics"},
+        {"match": ":", "name": "keyword.operator.rif"},
+        {"match": ",", "name": "punctuation.comma"}
+      ]
+    },
     "instances": {
       "begin": "^(\\s*)(instances)\\s*(:)\\s*(auto)?",
       "end": "^(?!\\1\\s+)(?=\\S)",
@@ -436,7 +483,8 @@
       },
       "name": "meta.block.instance.rif",
       "patterns": [
-        {"include": "#comments"},
+        {"include": "#comments"},    
+        {"include": "#indexes"},    
         {
           "match": "^(\\s*)(-)\\s*(\\w+)\\s*(?:(=)\\s*(\\w+))?\\s*(?:(\\(?\\s*)(\\w+)\\s*(\\))?)?",
           "captures": {
@@ -450,14 +498,12 @@
           }
         },
         {
-          "match": "^(\\s*)(?:\\[(\\d+)\\](\\.))?(\\w+)(\\[(\\d+)\\])?(\\.)(reset)\\b",
+          "match": "(?:(?:^\\s*)|(?:(\\w+)(\\.))|(\\.))(reset|hidden|reserved|disable|limit|info)\\b",
           "captures": {
-            "2": {"name": "constant.numeric.rif"},
+            "1": {"name": "variable.other.rif"},
+            "2": {"name": "keyword.operator.rif"},
             "3": {"name": "keyword.operator.rif"},
-            "4": {"name": "variable.other.rif"},
-            "6": {"name": "constant.numeric.rif"},
-            "7": {"name": "keyword.operator.rif"},
-            "8": {"name": "keyword.language.rif"}
+            "4": {"name": "keyword.language.rif"}
           }
         },
         {
@@ -489,7 +535,7 @@
     },
     "rifmux-map": {
       "begin": "^(\\s*)(map)\\s*(:)?",
-      "end": "^(?!\\1\\s+)(?=\\S)",
+      "end": "^(?!\\1\\s+)(?=\\s*\\S)",
       "beginCaptures": {
         "2": {"name": "storage.type.rif"},
         "3": {"name": "keyword.operator.rif"}
@@ -529,7 +575,7 @@
     },
     "rifmux-top": {
       "begin": "^(\\s*)(top)\\s*(:)\\s*(\\w+)",
-      "end": "^(?!\\1\\s+)(?=\\S)",
+      "end": "^(?!\\1\\s+)(?=\\s*\\S)",
       "beginCaptures": {
         "2": {"name": "storage.type.rif"},
         "3": {"name": "keyword.operator.rif"},
@@ -549,48 +595,24 @@
       ]
     },
     "description": {
+      "begin": "^(\\s*)(?:(?:(?:(\\w+)\\.)?(\\w+)(\\.))|(?:\\[(\\d+)\\](\\.)))?(desc(?:ription)?)(?:(\\.)?(hidden))?\\b\\s*(:)?",
+      "end": "^(?!\\1\\s+)",
+      "beginCaptures": {
+        "2": {"name": "variable.other.rif"},
+        "3": {"name": "variable.other.rif"},
+        "4": {"name": "keyword.operator.rif"},
+        "5": {"name": "constant.numeric.rif"},
+        "6": {"name": "keyword.operator.rif"},
+        "7": {"name": "keyword.language.rif"},
+        "8": {"name": "keyword.operator.rif"},
+        "9": {"name": "keyword.language.rif"},
+        "10": {"name": "keyword.operator.rif"}
+      },
+      "endCaptures": {"0": {"name":"constant"}},
+      "name": "meta.description.rif",
       "patterns": [
-        {
-          "begin": "^(\\s*)(?:(?:(?:(\\w+)\\.)?(\\w+))|(?:\\[(\\d+)\\])(\\.))?(desc(?:ription)?)(?:(\\.)?(hidden))?\\b\\s*(:)?",
-          "end": "^(?!\\1\\s+)(?=\\S)",
-          "beginCaptures": {
-            "2": {"name": "variable.other.rif"},
-            "3": {"name": "variable.other.rif"},
-            "4": {"name": "constant.numeric.rif"},
-            "5": {"name": "keyword.operator.rif"},
-            "6": {"name": "keyword.language.rif"},
-            "7": {"name": "keyword.operator.rif"},
-            "8": {"name": "keyword.language.rif"},
-            "9": {"name": "keyword.operator.rif"}
-          },
-          "name": "meta.description.rif",
-          "patterns": [
-            {
-              "match": ".*",
-              "name": "string.unquoted.rif"
-            }
-          ]
-        },
-        {
-          "begin": "^(\\s*)(?:\\[(\\d+)\\](\\.))?(\\w+)(\\[(\\d+)\\])?(\\.)(desc(?:ription)?)\\b\\s*(:)?",
-          "end": "^(?!\\1\\s+)(?=\\S)",
-          "beginCaptures": {
-            "2": {"name": "constant.numeric.rif"},
-            "3": {"name": "keyword.operator.rif"},
-            "4": {"name": "variable.other.rif"},
-            "6": {"name": "constant.numeric.rif"},
-            "7": {"name": "keyword.operator.rif"},
-            "8": {"name": "keyword.language.rif"},
-            "9": {"name": "keyword.operator.rif"}
-          },
-          "name": "meta.description.rif",
-          "patterns": [
-            {
-              "match": ".*",
-              "name": "string.unquoted.rif"
-            }
-          ]
-        }
+        {"match": "\\$(i|f)", "name": "constant.character.escape"},
+        {"match": "\\S+","name": "string.unquoted.rif"}
       ]
     },
     "strings": {
@@ -603,6 +625,14 @@
         "0": {"name": "punctuation.definition.string.end.rif"}
       },
       "name": "string.quoted.double.rif"
+    },
+    "string-placeholder": {
+      "patterns": [
+        {
+          "match": "\\$[if]",
+          "name": "constant.character.escape.rif"
+        }
+      ]
     },
     "comments": {
       "patterns": [
