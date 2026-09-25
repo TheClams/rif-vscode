@@ -1,0 +1,697 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "RIF Gen (VS Code)",
+  "scopeName": "source.rif",
+  "fileTypes": ["rif"],
+  "patterns": [
+    {"include": "#rif-entry"},
+    {"include": "#rifmux-entry"},
+    {"include": "#comments"}
+  ],
+  "repository": {
+    "rif-entry": {
+      "begin": "^(rif)\\s*(:)\\s*(\\w+)?",
+      "end": "^(?!\\s+)",
+      "beginCaptures": {
+        "1": {"name": "storage.type.rif"},
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "entity.name.variable.rif"}
+      },
+      "patterns": [
+        {"include": "#comments"},
+        {"include": "#description"},
+        {
+          "match": "^\\s+(addrWidth|dataWidth|baseAddress)\\s*(:)",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          }
+        },
+        {"include": "#clk-reset"},
+        {"include": "#parameters"},
+        {"include": "#info"},
+        {"include": "#numerics"},
+        {"include": "#interface"},
+        {"include": "#page-definition"}
+      ]
+    },
+    "page-definition": {
+      "begin": "^(\\s+)(-)\\s*(\\w+)\\s*(:)?",
+      "end": "^(?!\\1\\s+)(?=\\S)",
+      "beginCaptures": {
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "entity.name.variable.rif"},
+        "4": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.block.page.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {"include": "#strings"},
+        {
+          "match": "^\\s+(baseAddress|addrWidth|clkEn|optional|include)\\s*(:)?",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          }
+        },
+        {
+          "match": "^\\s+(external)\\b",
+          "captures": {
+            "1": {"name": "keyword.language.rif"}
+          }
+        },
+        {"include": "#numerics"},
+        {"include": "#registers"},
+        {"include": "#instances"}
+      ]
+    },
+    "rifmux-entry": {
+      "begin": "^(rifmux)\\s*(:)\\s*(\\w+)?",
+      "end": "^(?!\\s+)",
+      "beginCaptures": {
+        "1": {"name": "storage.type.rif"},
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "entity.name.variable.rif"}
+      },
+      "name": "meta.block.rifmux.rif",
+      "patterns": [
+        {"include": "#rifmux-map"},
+        {"include": "#rifmux-top"},
+        {"include": "#clk-reset"},
+        {"include": "#parameters"},
+        {"include": "#info"},
+        {"include": "#comments"},
+        {"include": "#description"},
+        {"include": "#interface"},
+        {
+          "match": "^\\s+(addrWidth|dataWidth)\\s*(:)",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          }
+        },
+        {"include": "#numerics"}
+      ]
+    },
+    "registers": {
+      "begin": "^(\\s*)(registers)\\s*(:)",
+      "end": "^(?=\\s+(instances))",
+      "beginCaptures": {
+        "2": {"name": "storage.type.rif"},
+        "3": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.block.registers.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {
+          "match": "^\\s+(-)\\s*(include)\\b",
+          "captures": {
+            "1": {"name": "keyword.operator.rif"},
+            "2": {"name": "keyword.language.rif"}
+          }
+        },
+        {"include": "#register"},
+        {"include": "#numerics"},
+        {"include": "#description"},
+        {"include": "#strings"}
+      ]
+    },
+    "register": {
+      "begin": "^(\\s*)(-)\\s*(\\w+)\\s*(?:(\\[)(?:(\\d+)|(\\$\\w+))(\\])\\s*)?(:)\\s*(?:(\\(?\\s*)(\\w+)\\s*(\\))?)?",
+      "end": "^(?=\\s+(instances|-\\s*include|(-\\s*\\w+\\s*(:|\"))))",
+      "beginCaptures": {
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "entity.name.variable.rif"},
+        "4": {"name": "punctuation.begin.rif"},
+        "5": {"name": "constant.numeric.rif"},
+        "6": {"name": "constant.language.rif"},
+        "7": {"name": "punctuation.end.rif"},
+        "8": {"name": "keyword.operator.rif"},
+        "9": {"name": "punctuation.begin.rif"},
+        "10": {"name": "entity.name.tag"},
+        "11": {"name": "punctuation.end.rif"}
+      },
+      "name": "meta.block.register.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {
+          "match": "^\\s*(wrPulse|rdPulse|accPulse)\\b(?:\\s*(comb|reg))?",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "constant.language.rif"}
+          }
+        },
+        {
+          "match": "^\\s+(external|externalDone|disable|hidden|optional|reserved)\\b",
+          "name": "keyword.language.rif"
+        },
+        {
+          "match": "^\\s+(clock|clkEn|hwReset)\\s*(:)?",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          }
+        },
+        {
+          "match": "(=|:)",
+          "name": "keyword.operator.equal.rif"
+        },
+        {"include": "#fields"},
+        {"include": "#info"},
+        {"include": "#interrupt"},
+        {"include": "#description"},
+        {"include": "#strings"}
+      ]
+    },
+    "fields": {
+      "begin": "^(\\s+)(-)\\s*(\\w+)\\s*(?:(=)|(\\d+))",
+      "end": "^(?=\\s+(-|instances))",
+      "beginCaptures": {
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "entity.name.variable.rif"},
+        "4": {"name": "constant.numeric.rif"}
+      },
+      "name": "meta.block.field.rif",
+      "patterns": [
+        {"include": "#comments"},        
+        {
+          "match": "^\\s+(hwclr|hwset|hwtgl|we|wel|signed|partial|arrayPartial|arrayPosIncr|external|externalDone|clear|disable|hidden|optional|reserved|toggle)\\b",
+          "name": "keyword.language.rif"
+        },
+        {
+          "match": "^\\s+(clock|clkEn)\\s*(:)?",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          }
+        },
+        {
+          "match": "^\\s*(hw)\\s+(na|rw|ro|r|wo|w)\\b",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "constant.language.rif"}
+          }
+        },
+        {
+          "match": "\\b(na|ro|rw|rclr|w0clr|w1clr|w1set|wclr|r|wo|w)\\b",
+          "name": "constant.language.rif"
+        },
+        {
+          "match": "(=|:)",
+          "name": "keyword.operator.equal.rif"
+        },
+        {
+          "match": "^\\s+(pulse)\\b(?:\\s*(comb|reg))?",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "constant.language.rif"}
+          }
+        },
+        {
+          "match": "^\\s+(nb_frac)\\s*([:=])\\s*(\\d+)",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"},
+            "3": {"name": "constant.numeric.rif"}
+          }
+        },
+        {"include": "#counter"},
+        {"include": "#lock"},
+        {"include": "#limit"},
+        {"include": "#password"},
+        {"include": "#info"},
+        {"include": "#interrupt"},
+        {"include": "#enum"},
+        {"include": "#numerics"},
+        {"include": "#description"},
+        {"include": "#strings"}
+      ]
+    },
+    "counter": {
+      "begin": "^\\s+(counter)\\b",
+      "end": "($)",
+      "beginCaptures": {
+        "1": {"name": "keyword.language.rif"}
+      },
+      "name": "meta.counter.rif",
+      "patterns": [
+        {
+          "match": "\\b(up|down|updown|incrVal|decrVal|sat|event)\\b",
+          "name": "constant.language.rif"
+        }
+      ]
+    },
+    "lock": {
+      "match": "^\\s+(lock)\\b",
+      "captures": {
+        "1": {"name": "keyword.language.rif"}
+      }
+    },
+    "limit": {
+      "begin": "^\\s+(limit)\\b",
+      "end": "($)",
+      "beginCaptures": {
+        "1": {"name": "keyword.language.rif"}
+      },
+      "name": "meta.limit.rif",
+      "patterns": [
+        {
+          "match": "\\b(enum)\\b",
+          "name": "constant.language.rif"
+        },
+        {"include": "#numerics"}
+      ]
+    },
+    "password": {
+      "begin": "^\\s+(password)\\b",
+      "end": "($)",
+      "beginCaptures": {
+        "1": {"name": "keyword.language.rif"}
+      },
+      "name": "meta.limit.rif",
+      "patterns": [
+        {
+          "match": "\\b(once|hold)\\b",
+          "name": "support.function.field.rif"
+        },
+        {
+          "match": "\\b(protect)\\b",
+          "name": "constant.language.rif"
+        },
+        {
+          "match": "(=)",
+          "name": "keyword.operator.rif"
+        },
+        {"include": "#numerics"}
+      ]
+    },
+    "interface": {
+      "match": "^\\s+(interface)\\s*(:)\\s*(?:(default_mask|default|APB|AHB|UAUX|apb|ahb|uaux)|(\\w+))\\b",
+      "captures": {
+        "1": {"name": "keyword.language.rif"},
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "constant.language.rif"}
+      }
+    },
+    "enum": {
+      "begin": "^(\\s*)(enum)\\s*(:)",
+      "end": "(?=^)",
+      "beginCaptures": {
+        "2": {"name": "keyword.language.rif"},
+        "3": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.enum.rif",
+      "patterns": [
+        {
+          "match": "\\s*(-)\\s*(\\w+)\\s*(=)\\s*(\\d[\\w']*)\\s+(:?(\\()([\\d\\.e]+)(\\))\\s+)?(\".*?\")",
+          "captures": {
+            "1": {"name": "keyword.operator.rif"},
+            "2": {"name": "constant.language.rif"},
+            "3": {"name": "keyword.operator.rif"},
+            "4": {"name": "constant.numeric.rif"},
+            "6": {"name": "punctuation.begin.rif"},
+            "7": {"name": "constant.numeric.rif"},
+            "8": {"name": "punctuation.end.rif"},
+            "9": {"name": "string.quoted.double.rif"}
+          }
+        },
+        {"include": "#comments"}
+      ]
+    },
+    "info": {
+      "begin": "^(\\s*)(info)\\s*(:)?",
+      "end": "^(?!\\1\\s+)(?=\\S)",
+      "beginCaptures": {
+        "2": {"name": "keyword.language.rif"},
+        "3": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.block.info.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {
+          "match": "^(\\s*)(-)\\s*(\\w+)\\b\\s*(:|=)?\\s*(.*)",
+          "captures": {
+            "2": {"name": "keyword.operator.rif"},
+            "3": {"name": "variable.other.rif"},
+            "4": {"name": "keyword.operator.rif"},
+            "5": {"name": "string.rif"}
+          }
+        }
+      ]
+    },
+    "parameters": {
+      "begin": "^(\\s*)(parameters)\\s*(:)?",
+      "end": "^(?!\\1\\s+)(?=\\S)",
+      "beginCaptures": {
+        "2": {"name": "keyword.language.rif"},
+        "3": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.block.info.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {"include": "#parameter-assignment"}
+      ]
+    },
+    "parameter-assignment": {
+      "begin": "^(?i)(\\s*)(-)\\s*(?:\\w+\\.)*(\\w+)\\b\\s*(=)\\s*",
+      "end": "$",
+      "beginCaptures": {
+        "2": {"name": "keyword.operator.rif"},
+        "3": {"name": "variable.other.rif"},
+        "4": {"name": "keyword.operator.rif"}
+      },
+      "patterns": [
+        {"include": "#comments"},
+        {"include": "#numerics"},
+        {
+          "match": "\\b(not|ceil|floor|log2|log10|int|pow)\\b",
+          "name": "keyword.operator.rif"
+        },
+        {
+          "match": "(\\+|\\-|\\*|\\/)",
+          "name": "keyword.operator.rif"
+        }
+      ]
+    },
+    "interrupt": {
+      "patterns": [
+        {
+          "begin": "^(\\s*)(interrupt)\\s*(:)?",
+          "end": "($)",
+          "beginCaptures": {
+            "2": {"name": "keyword.language.rif"},
+            "3": {"name": "keyword.operator.rif"}
+          },
+          "name": "meta.interrupt.rif",
+          "patterns": [
+            {
+              "match": "\\b(mask|enable|en|pending)\\b",
+              "name": "support.function.field.rif"
+            },
+            {
+              "match": "\\b(high|low|rising|falling|rclr|w0clr|w1clr|wclr)\\b",
+              "name": "constant.language.rif"
+            },
+            {
+              "match": "(=)",
+              "name": "keyword.operator.rif"
+            },
+            {"include": "#numerics"}
+          ]
+        },
+        {
+          "begin": "^(\\s*)(alt)\\b(?:\\s+(\\w+))?\\s*(:)?",
+          "end": "($)",
+          "beginCaptures": {
+            "2": {"name": "keyword.language.rif"},
+            "4": {"name": "keyword.operator.rif"}
+          },
+          "name": "meta.interrupt.rif",
+          "patterns": [
+            {
+              "match": "\\b(mask|enable|en|pending)\\b",
+              "name": "support.function.field.rif"
+            },
+            {
+              "match": "\\b(high|low|rising|falling|rclr|w0clr|w1clr|wclr)\\b",
+              "name": "constant.language.rif"
+            },
+            {
+              "match": "(=)",
+              "name": "keyword.operator.rif"
+            },
+            {"include": "#numerics"},
+            {"include": "#strings"}
+          ]
+        }
+      ]
+    },
+    "instances": {
+      "begin": "^(\\s*)(instances)\\s*(:)\\s*(auto)?",
+      "end": "^(?!\\1\\s+)(?=\\S)",
+      "beginCaptures": {
+        "2": {"name": "storage.type.rif"},
+        "3": {"name": "keyword.operator.rif"},
+        "4": {"name": "constant.language.rif"}
+      },
+      "name": "meta.block.instance.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {
+          "match": "^(\\s*)(-)\\s*(\\w+)\\s*(?:(=)\\s*(\\w+))?\\s*(?:(\\(?\\s*)(\\w+)\\s*(\\))?)?",
+          "captures": {
+            "2": {"name": "keyword.operator.rif"},
+            "3": {"name": "entity.name.variable.rif"},
+            "4": {"name": "keyword.operator.rif"},
+            "5": {"name": "storage.type.rif"},
+            "6": {"name": "punctuation.begin.groupname.rif"},
+            "7": {"name": "entity.name.tag.rif"},
+            "8": {"name": "punctuation.end.groupname.rif"}
+          }
+        },
+        {
+          "match": "^(\\s*)(?:\\[(\\d+)\\](\\.))?(\\w+)(\\[(\\d+)\\])?(\\.)(reset)\\b",
+          "captures": {
+            "2": {"name": "constant.numeric.rif"},
+            "3": {"name": "keyword.operator.rif"},
+            "4": {"name": "variable.other.rif"},
+            "6": {"name": "constant.numeric.rif"},
+            "7": {"name": "keyword.operator.rif"},
+            "8": {"name": "keyword.language.rif"}
+          }
+        },
+        {
+          "match": "^\\s*(hw)\\s+(na|rw|ro|r|w)\\b",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "constant.language.rif"}
+          }
+        },
+        {
+          "match": "(@)",
+          "name": "keyword.operator.address.rif"
+        },
+        {
+          "match": "(=)",
+          "name": "keyword.operator.rif"
+        },
+        {
+          "match": "^\\s+(optional)\\s*(:)?",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          }
+        },
+        {"include": "#numerics"},
+        {"include": "#description"},
+        {"include": "#strings"}
+      ]
+    },
+    "rifmux-map": {
+      "begin": "^(\\s*)(map)\\s*(:)?",
+      "end": "^(?!\\1\\s+)(?=\\S)",
+      "beginCaptures": {
+        "2": {"name": "storage.type.rif"},
+        "3": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.block.map.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {
+          "match": "^(\\s*)(-)\\s*(\\w+)\\s*(?:(=)\\s*(\\w+))",
+          "captures": {
+            "2": {"name": "keyword.operator.rif"},
+            "3": {"name": "entity.name.variable.rif"},
+            "4": {"name": "keyword.operator.rif"},
+            "5": {"name": "storage.type.rif"}
+          }
+        },
+        {
+          "match": "^(\\s*)(-)\\s*(\\w+)\\s+(external)\\s+(\\d+)\\b",
+          "captures": {
+            "2": {"name": "keyword.operator.rif"},
+            "3": {"name": "entity.name.variable.rif"},
+            "4": {"name": "keyword.language.rif"},
+            "5": {"name": "constant.numeric.rif"}
+          }
+        },
+        {
+          "match": "(@)",
+          "name": "keyword.operator.address.rif"
+        },
+        {"include": "#group"},
+        {"include": "#suffix"},
+        {"include": "#numerics"},
+        {"include": "#strings"},
+        {"include": "#description"},
+        {"include": "#parameters"}
+      ]
+    },
+    "rifmux-top": {
+      "begin": "^(\\s*)(top)\\s*(:)\\s*(\\w+)",
+      "end": "^(?!\\1\\s+)(?=\\S)",
+      "beginCaptures": {
+        "2": {"name": "storage.type.rif"},
+        "3": {"name": "keyword.operator.rif"},
+        "4": {"name": "entity.name.variable.rif"}
+      },
+      "name": "meta.block.map.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {
+          "match": "^(\\s*)(-)\\s*(\\w+)\\s*(:)\\s*(\\w+)",
+          "captures": {
+            "2": {"name": "keyword.operator.rif"},
+            "3": {"name": "entity.name.variable.rif"},
+            "4": {"name": "keyword.operator.rif"}
+          }
+        }
+      ]
+    },
+    "description": {
+      "patterns": [
+        {
+          "begin": "^(\\s*)(?:(?:(?:(\\w+)\\.)?(\\w+))|(?:\\[(\\d+)\\])(\\.))?(desc(?:ription)?)(?:(\\.)?(hidden))?\\b\\s*(:)?",
+          "end": "^(?!\\1\\s+)(?=\\S)",
+          "beginCaptures": {
+            "2": {"name": "variable.other.rif"},
+            "3": {"name": "variable.other.rif"},
+            "4": {"name": "constant.numeric.rif"},
+            "5": {"name": "keyword.operator.rif"},
+            "6": {"name": "keyword.language.rif"},
+            "7": {"name": "keyword.operator.rif"},
+            "8": {"name": "keyword.language.rif"},
+            "9": {"name": "keyword.operator.rif"}
+          },
+          "name": "meta.description.rif",
+          "patterns": [
+            {
+              "match": ".*",
+              "name": "string.unquoted.rif"
+            }
+          ]
+        },
+        {
+          "begin": "^(\\s*)(?:\\[(\\d+)\\](\\.))?(\\w+)(\\[(\\d+)\\])?(\\.)(desc(?:ription)?)\\b\\s*(:)?",
+          "end": "^(?!\\1\\s+)(?=\\S)",
+          "beginCaptures": {
+            "2": {"name": "constant.numeric.rif"},
+            "3": {"name": "keyword.operator.rif"},
+            "4": {"name": "variable.other.rif"},
+            "6": {"name": "constant.numeric.rif"},
+            "7": {"name": "keyword.operator.rif"},
+            "8": {"name": "keyword.language.rif"},
+            "9": {"name": "keyword.operator.rif"}
+          },
+          "name": "meta.description.rif",
+          "patterns": [
+            {
+              "match": ".*",
+              "name": "string.unquoted.rif"
+            }
+          ]
+        }
+      ]
+    },
+    "strings": {
+      "begin": "\"",
+      "end": "\"",
+      "beginCaptures": {
+        "0": {"name": "punctuation.definition.string.begin.rif"}
+      },
+      "endCaptures": {
+        "0": {"name": "punctuation.definition.string.end.rif"}
+      },
+      "name": "string.quoted.double.rif"
+    },
+    "comments": {
+      "patterns": [
+        {
+          "match": "\\s*(//|#).*$\\n?",
+          "name": "comment.line.rif"
+        },
+        {
+          "match": "^\\s*$",
+          "name": "meta.empty-line.rif"
+        }
+      ]
+    },
+    "numerics": {
+      "patterns": [
+        {
+          "match": "\\b(?i)(\\d+|0x[0-9a-f]+)\\b",
+          "name": "constant.numeric.rif"
+        },
+        {
+          "match": "(\\b\\d+)?'(s?[bB]\\s*[0-1xXzZ?][0-1_xXzZ?]*|s?[oO]\\s*[0-7xXzZ?][0-7_xXzZ?]*|s?[dD]\\s*[0-9xXzZ?][0-9_xXzZ?]*|s?[hH]\\s*[0-9a-fA-FxXzZ?][0-9a-fA-F_xXzZ?]*)(?!'|\\w)",
+          "name": "constant.numeric.systemverilog.rif"
+        },
+        {
+          "match": "\\$\\w+",
+          "name": "constant.language.rif"
+        },
+        {
+          "match": "\\b(?i)(true|false)\\b",
+          "name": "constant.language.rif"
+        }
+      ]
+    },
+    "clk-reset": {
+      "patterns": [
+        {
+          "begin": "^\\s*((?:hw|sw)(?:Reset|Clock))\\s*(:)",
+          "end": "$",
+          "beginCaptures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          },
+          "patterns": [
+            {
+              "match": "(?i)\\b(((active)?(Low|High))|async|sync)\\b",
+              "name": "constant.language.rif"
+            }
+          ]
+        },
+        {
+          "match": "^\\s+((?:hw|sw)ClkEn)\\s*(:)\\s*.*$",
+          "captures": {
+            "1": {"name": "keyword.language.rif"},
+            "2": {"name": "keyword.operator.rif"}
+          }
+        }
+      ]
+    },
+    "suffix": {
+      "match": "^(\\s*)(suffix)\\s*(:)\\s*(?:(\\w+)(=))?\\w+(?:(\\()(alt)(\\)))?",
+      "captures": {
+        "2": {"name": "keyword.language.rif"},
+        "3": {"name": "keyword.operator.rif"},
+        "4": {"name": "variable.other.rif"},
+        "5": {"name": "keyword.operator.rif"},
+        "6": {"name": "punctuation.begin.groupname.rif"},
+        "7": {"name": "constant.language.rif"},
+        "8": {"name": "punctuation.end.groupname.rif"}
+      }
+    },
+    "group": {
+      "begin": "^(\\s*)(group)\\s*(:)\\s*(\\w+)\\s*(@)\\s*",
+      "end": "$",
+      "beginCaptures": {
+        "2": {"name": "keyword.language.rif"},
+        "3": {"name": "keyword.operator.rif"},
+        "4": {"name": "entity.name.variable.rif"},
+        "5": {"name": "keyword.operator.rif"}
+      },
+      "name": "meta.block.map.group.rif",
+      "patterns": [
+        {"include": "#comments"},
+        {
+          "match": "(@)",
+          "name": "keyword.operator.address.rif"
+        },
+        {"include": "#numerics"},
+        {"include": "#strings"}
+      ]
+    }
+  }
+}
